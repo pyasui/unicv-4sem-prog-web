@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Unicv.Streaming.Api.Models.Requests;
 
 namespace Unicv.Streaming.Api.Controllers
 {
@@ -7,6 +8,7 @@ namespace Unicv.Streaming.Api.Controllers
     [Route("category")]
     public class CategoryController : ControllerBase
     {
+        #region Get
         /// <summary>
         /// Retornar uma categoria de acordo com o Id
         /// </summary>
@@ -20,6 +22,7 @@ namespace Unicv.Streaming.Api.Controllers
         {
             return Ok();
         }
+        #endregion
 
         /// <summary>
         /// Retorna todas as categorias
@@ -40,9 +43,9 @@ namespace Unicv.Streaming.Api.Controllers
         /// <response code="400">Já existe uma categoria com esse nome</response>
         /// <response code="422">Dados inválidos</response>
         [HttpPost]
-        public IActionResult Post()
+        public IActionResult Post(CategoryRequest model)
         {
-            return Ok();
+             return Ok(model);
         }
 
         /// <summary>
@@ -54,7 +57,7 @@ namespace Unicv.Streaming.Api.Controllers
         /// <response code="422">Dados inválidos</response>
         /// <response code="404">Categoria não encontrada</response>
         [HttpPut("{id}")]
-        public IActionResult Put(int id)
+        public IActionResult Put(int id, [FromBody] CategoryRequest model)
         {
             return Ok();
         }
