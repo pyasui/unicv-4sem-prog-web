@@ -1,0 +1,6 @@
+@Unicv.Streaming.Api_HostAddress = http://localhost:5101
+
+GET {{Unicv.Streaming.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
