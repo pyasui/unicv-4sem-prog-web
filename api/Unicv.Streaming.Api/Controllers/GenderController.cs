@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Unicv.Streaming.Api.Data.Context;
+using Unicv.Streaming.Api.Data.Entities;
 using Unicv.Streaming.Api.Models.Requests;
 
 namespace Unicv.Streaming.Api.Controllers
@@ -8,6 +10,13 @@ namespace Unicv.Streaming.Api.Controllers
     [Route("gender")]
     public class GenderController : ControllerBase
     {
+        private DataContext _db;
+
+        public GenderController(IConfiguration configuration)
+        {
+            _db = new DataContext(configuration);
+        }
+
         #region GetById
         /// <summary>
         /// Retornar um gênero de acordo com o Id
@@ -20,7 +29,12 @@ namespace Unicv.Streaming.Api.Controllers
         [Route("{id}")]
         public IActionResult GetById(int id)
         {
-            return Ok();
+            var gender = _db.Gender.FirstOrDefault(x => x.Id == id);
+
+            if (gender == null)
+                return NotFound();
+
+            return Ok(gender);
         }
         #endregion
 
@@ -33,7 +47,8 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok();
+            var genders = _db.Gender.ToList();
+            return Ok(genders);
         }
         #endregion
 
@@ -48,6 +63,13 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpPost]
         public IActionResult Post(GenderRequest model)
         {
+            var gender = new Gender();
+            gender.Name = model.Name;
+            gender.CreatedAt = DateTime.UtcNow;
+
+            _db.Add(gender);
+            _db.SaveChanges();
+
             return Ok(model);
         }
         #endregion
@@ -64,7 +86,17 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] GenderRequest model)
         {
-            return Ok();
+            var gender = _db.Gender.FirstOrDefault(x => x.Id == id);
+            
+            if (gender == null)
+                return NotFound();
+
+            gender.Name = model.Name;
+
+            _db.Update(gender);
+            _db.SaveChanges();
+
+            return Ok(model);
         }
         #endregion
 
@@ -79,6 +111,14 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            var gender = _db.Gender.FirstOrDefault(x => x.Id == id);
+            
+            if (gender == null)
+                return NotFound();
+
+            _db.Remove(gender);
+            _db.SaveChanges();
+            
             return Ok();
         }
         #endregion
