@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unicv.Streaming.Api", "Unicv.Streaming.Api.csproj", "{F484D1F9-EFF0-4E69-B1D3-AD862A795CEA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F484D1F9-EFF0-4E69-B1D3-AD862A795CEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F484D1F9-EFF0-4E69-B1D3-AD862A795CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F484D1F9-EFF0-4E69-B1D3-AD862A795CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F484D1F9-EFF0-4E69-B1D3-AD862A795CEA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DA3139BF-91EC-4B6A-A29B-D39E878683E2}
+	EndGlobalSection
+EndGlobal

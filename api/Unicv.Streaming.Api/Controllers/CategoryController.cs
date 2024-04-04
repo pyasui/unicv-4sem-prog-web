@@ -8,7 +8,7 @@ namespace Unicv.Streaming.Api.Controllers
     [Route("category")]
     public class CategoryController : ControllerBase
     {
-        #region Get
+        #region GetById
         /// <summary>
         /// Retornar uma categoria de acordo com o Id
         /// </summary>
@@ -24,6 +24,7 @@ namespace Unicv.Streaming.Api.Controllers
         }
         #endregion
 
+        #region Get
         /// <summary>
         /// Retorna todas as categorias
         /// </summary>
@@ -34,7 +35,9 @@ namespace Unicv.Streaming.Api.Controllers
         {
             return Ok();
         }
+        #endregion
 
+        #region Post
         /// <summary>
         /// Criar uma categoria
         /// </summary>
@@ -45,9 +48,11 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpPost]
         public IActionResult Post(CategoryRequest model)
         {
-             return Ok(model);
+            return Ok(model);
         }
+        #endregion
 
+        #region Put
         /// <summary>
         /// Editar uma categoria
         /// </summary>
@@ -61,7 +66,9 @@ namespace Unicv.Streaming.Api.Controllers
         {
             return Ok();
         }
+        #endregion
 
+        #region Delete
         /// <summary>
         /// Excluir uma categoria
         /// </summary>
@@ -74,6 +81,6 @@ namespace Unicv.Streaming.Api.Controllers
         {
             return Ok();
         }
-
+        #endregion
     }
 }
