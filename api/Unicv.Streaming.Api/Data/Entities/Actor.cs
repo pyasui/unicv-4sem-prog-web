@@ -1,6 +1,6 @@
 ﻿namespace Unicv.Streaming.Api.Data.Entities;
 
-public class Author
+public class Actor
 {
     public int Id { get; set; }
 

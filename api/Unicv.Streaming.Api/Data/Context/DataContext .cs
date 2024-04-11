@@ -21,5 +21,5 @@ public class DataContext : DbContext
     public DbSet<Gender> Gender { get; set; }
     public DbSet<Account> Account { get; set; }
     public DbSet<Category> Category { get; set; }
-    public DbSet<Author> Author { get; set; }
+    public DbSet<Actor> Actor { get; set; }
 }

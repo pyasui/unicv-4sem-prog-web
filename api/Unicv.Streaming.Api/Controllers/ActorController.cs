@@ -7,12 +7,12 @@ using Unicv.Streaming.Api.Models.Requests;
 namespace Unicv.Streaming.Api.Controllers
 {
     [ApiController]
-    [Route("author")]
-    public class AuthorController : ControllerBase
+    [Route("actor")]
+    public class ActorController : ControllerBase
     {
         private DataContext _db;
 
-        public AuthorController(IConfiguration configuration)
+        public ActorController(IConfiguration configuration)
         {
             _db = new DataContext(configuration);
         }
@@ -29,7 +29,7 @@ namespace Unicv.Streaming.Api.Controllers
         [Route("{id}")]
         public IActionResult GetById(int id)
         {
-            var author = _db.Author.FirstOrDefault(x => x.Id == id);
+            var author = _db.Actor.FirstOrDefault(x => x.Id == id);
 
             if (author == null)
                 return NotFound();
@@ -47,7 +47,7 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var authors = _db.Author.ToList();
+            var authors = _db.Actor.ToList();
             return Ok(authors);
 
         }
@@ -62,14 +62,14 @@ namespace Unicv.Streaming.Api.Controllers
         /// <response code="400">Já existe um autor com esse nome</response>
         /// <response code="422">Dados inválidos</response>
         [HttpPost]
-        public IActionResult Post(AuthorRequest model)
+        public IActionResult Post(ActorRequest model)
         {
             // o nome não pode ser duplicado na plataforma
-            var entity = _db.Author.FirstOrDefault(x => x.Name == model.Name);
+            var entity = _db.Actor.FirstOrDefault(x => x.Name == model.Name);
             if (entity != null)
                 return BadRequest("Já existe um ator com este e-mail cadastrado.");
 
-            var actor = new Author();
+            var actor = new Actor();
             actor.Name = model.Name;
             actor.Profile = model.Profile;
             actor.BirthDate = model.BirthDate;
@@ -92,15 +92,15 @@ namespace Unicv.Streaming.Api.Controllers
         /// <response code="422">Dados inválidos</response>
         /// <response code="404">autor não encontrado</response>
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] AuthorRequest model)
+        public IActionResult Put(int id, [FromBody] ActorRequest model)
         {
-            var author = _db.Author.FirstOrDefault(x => x.Id == id);
+            var author = _db.Actor.FirstOrDefault(x => x.Id == id);
 
             if (author == null)
                 return NotFound();
 
             // o nome não pode ser duplicado na plataforma
-            var entity = _db.Author.FirstOrDefault(x => x.Name == author.Name && x.Id != id);
+            var entity = _db.Actor.FirstOrDefault(x => x.Name == author.Name && x.Id != id);
             if (entity != null)
                 return BadRequest("Já existe um ator com este nome cadastrado.");
 
@@ -126,7 +126,7 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var actor = _db.Author.FirstOrDefault(x => x.Id == id);
+            var actor = _db.Actor.FirstOrDefault(x => x.Id == id);
 
             if (actor == null)
                 return NotFound();

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Unicv.Streaming.Api.Models.Requests;
 
-public class AuthorRequest
+public class ActorRequest
 {
     [Required]
     public string Name { get; set; }
