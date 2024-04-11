@@ -63,6 +63,11 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpPost]
         public IActionResult Post(GenderRequest model)
         {
+            // validar se existe um gênero criado com o mesmo nome
+            var entity = _db.Gender.FirstOrDefault(x => x.Name == model.Name);
+            if (entity != null)
+                return BadRequest("Já existe um gênero com este nome.");
+
             var gender = new Gender();
             gender.Name = model.Name;
             gender.CreatedAt = DateTime.UtcNow;
@@ -87,9 +92,13 @@ namespace Unicv.Streaming.Api.Controllers
         public IActionResult Put(int id, [FromBody] GenderRequest model)
         {
             var gender = _db.Gender.FirstOrDefault(x => x.Id == id);
-            
+
             if (gender == null)
                 return NotFound();
+
+            var entity = _db.Gender.FirstOrDefault(x => x.Name == model.Name && x.Id != id);
+            if (entity != null)
+                return BadRequest("Já existe um gênero com este nome.");
 
             gender.Name = model.Name;
 
@@ -112,13 +121,13 @@ namespace Unicv.Streaming.Api.Controllers
         public IActionResult Delete(int id)
         {
             var gender = _db.Gender.FirstOrDefault(x => x.Id == id);
-            
+
             if (gender == null)
                 return NotFound();
 
             _db.Remove(gender);
             _db.SaveChanges();
-            
+
             return Ok();
         }
         #endregion

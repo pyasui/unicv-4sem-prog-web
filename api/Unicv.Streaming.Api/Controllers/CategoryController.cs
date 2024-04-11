@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Unicv.Streaming.Api.Data.Context;
+using Unicv.Streaming.Api.Data.Entities;
 using Unicv.Streaming.Api.Models.Requests;
 
 namespace Unicv.Streaming.Api.Controllers
@@ -8,6 +9,13 @@ namespace Unicv.Streaming.Api.Controllers
     [Route("category")]
     public class CategoryController : ControllerBase
     {
+        private DataContext _db;
+
+        public CategoryController(IConfiguration configuration)
+        {
+            _db = new DataContext(configuration);
+        }
+
         #region GetById
         /// <summary>
         /// Retornar uma categoria de acordo com o Id
@@ -20,7 +28,12 @@ namespace Unicv.Streaming.Api.Controllers
         [Route("{id}")]
         public IActionResult GetById(int id)
         {
-            return Ok();
+            var category = _db.Category.FirstOrDefault(x => x.Id == id);
+
+            if (category == null)
+                return NotFound();
+
+            return Ok(category);
         }
         #endregion
 
@@ -33,7 +46,8 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok();
+            var categories = _db.Category.ToList();
+            return Ok(categories);
         }
         #endregion
 
@@ -48,7 +62,20 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpPost]
         public IActionResult Post(CategoryRequest model)
         {
+            // validar se existe uma categoria criada com o mesmo nome
+            var entity = _db.Category.FirstOrDefault(x => x.Name == model.Name);
+            if (entity != null)
+                return BadRequest("Já existe uma categoria com este nome.");
+
+            var category = new Category();
+            category.Name = model.Name;
+            category.CreatedAt = DateTime.UtcNow;
+
+            _db.Add(category);
+            _db.SaveChanges();
+
             return Ok(model);
+
         }
         #endregion
 
@@ -64,7 +91,21 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] CategoryRequest model)
         {
-            return Ok();
+            var category = _db.Category.FirstOrDefault(x => x.Id == id);
+
+            if (category == null)
+                return NotFound();
+
+            var entity = _db.Category.FirstOrDefault(x => x.Name == model.Name && x.Id != id);
+            if (entity != null)
+                return BadRequest("Já existe uma categoria com este nome.");
+
+            category.Name = model.Name;
+
+            _db.Update(category);
+            _db.SaveChanges();
+
+            return Ok(model);
         }
         #endregion
 
@@ -79,6 +120,14 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            var category = _db.Category.FirstOrDefault(x => x.Id == id);
+
+            if (category == null)
+                return NotFound();
+
+            _db.Remove(category);
+            _db.SaveChanges();
+
             return Ok();
         }
         #endregion
