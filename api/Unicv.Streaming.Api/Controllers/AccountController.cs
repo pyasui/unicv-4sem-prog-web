@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Unicv.Streaming.Api.Data.Context;
 using Unicv.Streaming.Api.Data.Entities;
@@ -119,10 +118,10 @@ namespace Unicv.Streaming.Api.Controllers
             account.Name = model.Name;
             account.Email = model.Email;
             account.BirthDate = model.BirthDate;
-            
+
             _db.Update(account);
             _db.SaveChanges();
-            
+
             return Ok();
         }
         #endregion
