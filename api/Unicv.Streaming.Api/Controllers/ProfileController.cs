@@ -63,7 +63,7 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpPost]
         public IActionResult Post(ProfileRequest model)
         {
-            // onome não pode ser duplicado na plataforma
+            // o nome não pode ser duplicado na plataforma
             var entity = _db.Profile.FirstOrDefault(x => x.Name == model.Name && x.AccountId == model.AccountId);
             if (entity != null)
                 return BadRequest("Já existe um perfil com este nome cadastrado.");
