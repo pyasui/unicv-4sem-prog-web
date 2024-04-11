@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Unicv.Streaming.Api.Data.Context;
+using Unicv.Streaming.Api.Data.Entities;
 using Unicv.Streaming.Api.Models.Requests;
 
 namespace Unicv.Streaming.Api.Controllers
@@ -8,6 +10,13 @@ namespace Unicv.Streaming.Api.Controllers
     [Route("author")]
     public class AuthorController : ControllerBase
     {
+        private DataContext _db;
+
+        public AuthorController(IConfiguration configuration)
+        {
+            _db = new DataContext(configuration);
+        }
+
         #region GetById
         /// <summary>
         /// Retornar um autor de acordo com o Id
@@ -20,7 +29,12 @@ namespace Unicv.Streaming.Api.Controllers
         [Route("{id}")]
         public IActionResult GetById(int id)
         {
-            return Ok();
+            var author = _db.Author.FirstOrDefault(x => x.Id == id);
+
+            if (author == null)
+                return NotFound();
+
+            return Ok(author);
         }
         #endregion
 
@@ -33,7 +47,9 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok();
+            var authors = _db.Author.ToList();
+            return Ok(authors);
+
         }
         #endregion
 
@@ -48,7 +64,21 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpPost]
         public IActionResult Post(AuthorRequest model)
         {
-            return Ok(model);
+            // o nome não pode ser duplicado na plataforma
+            var entity = _db.Author.FirstOrDefault(x => x.Name == model.Name);
+            if (entity != null)
+                return BadRequest("Já existe um ator com este e-mail cadastrado.");
+
+            var actor = new Author();
+            actor.Name = model.Name;
+            actor.Profile = model.Profile;
+            actor.BirthDate = model.BirthDate;
+            actor.CreatedAt = DateTime.UtcNow;
+
+            _db.Add(actor);
+            _db.SaveChanges();
+
+            return Ok();
         }
         #endregion
 
@@ -64,6 +94,23 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] AuthorRequest model)
         {
+            var author = _db.Author.FirstOrDefault(x => x.Id == id);
+
+            if (author == null)
+                return NotFound();
+
+            // o nome não pode ser duplicado na plataforma
+            var entity = _db.Author.FirstOrDefault(x => x.Name == author.Name && x.Id != id);
+            if (entity != null)
+                return BadRequest("Já existe um ator com este nome cadastrado.");
+
+            author.Name = model.Name;
+            author.Profile = model.Profile;
+            author.BirthDate = model.BirthDate;
+
+            _db.Update(author);
+            _db.SaveChanges();
+
             return Ok();
         }
         #endregion
@@ -79,6 +126,14 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            var actor = _db.Author.FirstOrDefault(x => x.Id == id);
+
+            if (actor == null)
+                return NotFound();
+
+            _db.Remove(actor);
+            _db.SaveChanges();
+
             return Ok();
         }
         #endregion

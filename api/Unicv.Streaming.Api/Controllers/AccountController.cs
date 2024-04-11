@@ -106,7 +106,6 @@ namespace Unicv.Streaming.Api.Controllers
             if (account == null)
                 return NotFound();
 
-            // validar os dados da plataforma
             // o e-mail não pode ser duplicado na plataforma
             var user = _db.Account.FirstOrDefault(x => x.Email == account.Email && x.Id != id);
             if (user != null)
@@ -139,6 +138,14 @@ namespace Unicv.Streaming.Api.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            var account = _db.Account.FirstOrDefault(x => x.Id == id);
+
+            if (account == null)
+                return NotFound();
+
+            _db.Remove(account);
+            _db.SaveChanges();
+
             return Ok();
         }
         #endregion
