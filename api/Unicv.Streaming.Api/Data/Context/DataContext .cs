@@ -23,4 +23,5 @@ public class DataContext : DbContext
     public DbSet<Category> Category { get; set; }
     public DbSet<Actor> Actor { get; set; }
     public DbSet<Director> Director { get; set; }
+    public DbSet<Profile> Profile { get; set; }
 }

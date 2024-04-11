@@ -142,6 +142,10 @@ namespace Unicv.Streaming.Api.Controllers
             if (account == null)
                 return NotFound();
 
+            var hasProfiles = _db.Profile.Any(x => x.AccountId == id);
+            if (hasProfiles)
+                return BadRequest("Esta conta não pode ser excluída pois possui perfis ativos. Exclua os perfis antes de excluir a conta")
+
             _db.Remove(account);
             _db.SaveChanges();
 
