@@ -6,6 +6,7 @@ namespace Unicv.Streaming.Api.Data.Context;
 public class DataContext : DbContext
 {
     protected readonly IConfiguration _configuration;
+
     public DataContext(IConfiguration configuration)
     {
         _configuration = configuration;
@@ -18,4 +19,5 @@ public class DataContext : DbContext
     }
 
     public DbSet<Gender> Gender { get; set; }
+    public DbSet<Account> Account { get; set; }
 }
