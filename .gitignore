@@ -2,3 +2,6 @@
 /api/.vs
 /api/Unicv.Streaming.Api/bin
 /api/Unicv.Streaming.Api/obj
+/api/Unicv.Streaming.Api/Properties/PublishProfiles
+/api/Unicv.Streaming.Api/Properties/ServiceDependencies
+api/Unicv.Streaming.Api/Unicv.Streaming.Api.csproj.user
