@@ -8,10 +8,16 @@ public class Work
     public string Synopsis { get; set; }
     public bool Active { get; set; }
     public DateTime CreatedAt { get; set; }
-    
 
     // chaves estrangeiras - relacionamentos
     public int GenderId { get; set; }
     public int CategoryId { get; set; }
     public int DirectorId { get; set; }
+
+    public List<Cast> Cast { get; set; }
+
+    public Work()
+    {
+        Cast = new List<Cast>();
+    }
 }
