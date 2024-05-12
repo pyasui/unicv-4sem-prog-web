@@ -46,7 +46,7 @@ public class WorksController : ControllerBase
     [HttpGet]
     public IActionResult Get()
     {
-        var works = _db.Work.ToList();
+        var works = _db.Work.Where(x => x.Active).ToList();
         return Ok(works);
     }
     #endregion
