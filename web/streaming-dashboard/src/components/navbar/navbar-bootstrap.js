@@ -15,6 +15,8 @@ export const NavbarBootstrap = () => {
                             <NavDropdown title="Cadastros" id="basic-nav-dropdown">
                                 <NavDropdown.Item href="/categorias">Categorias</NavDropdown.Item>
                                 <NavDropdown.Item href="/generos">Gêneros</NavDropdown.Item>
+                                <NavDropdown.Item href="/diretores">Diretores</NavDropdown.Item>
+                                <NavDropdown.Item href="/atores">Atores</NavDropdown.Item>
                                 <NavDropdown.Divider />
                                 <NavDropdown.Item href="#action/3.4">
                                     Separated link
