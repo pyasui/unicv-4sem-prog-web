@@ -15,9 +15,11 @@ public class Work
     public int DirectorId { get; set; }
 
     public List<Cast> Cast { get; set; }
+    public List<Rating> Rating { get; set; }
 
     public Work()
     {
         Cast = new List<Cast>();
+        Rating = new List<Rating>();
     }
 }

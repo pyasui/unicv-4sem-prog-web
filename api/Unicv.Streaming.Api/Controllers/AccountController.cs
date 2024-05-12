@@ -9,7 +9,7 @@ namespace Unicv.Streaming.Api.Controllers;
 [Route("account")]
 public class AccountController : ControllerBase
 {
-    private DataContext _db;
+    private readonly DataContext _db;
 
     public AccountController(IConfiguration configuration)
     {
@@ -144,9 +144,7 @@ public class AccountController : ControllerBase
 
         var hasProfiles = _db.Profile.Any(x => x.AccountId == id);
         if (hasProfiles)
-            return BadRequest(
-                "Esta conta não pode ser excluída pois possui perfis ativos. Exclua os perfis antes de excluir a conta"
-            );
+            return BadRequest("Esta conta não pode ser excluída pois possui perfis ativos. Exclua os perfis antes de excluir a conta");
 
         _db.Remove(account);
         _db.SaveChanges();

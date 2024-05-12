@@ -9,7 +9,7 @@ namespace Unicv.Streaming.Api.Controllers;
 [Route("works")]
 public class WorksController : ControllerBase
 {
-    private DataContext _db;
+    private readonly DataContext _db;
 
     public WorksController(IConfiguration configuration)
     {
@@ -107,7 +107,6 @@ public class WorksController : ControllerBase
         {
             var cast = new Cast();
             cast.ActorId = actorId;
-            // cast.WorkId = work.Id;
             cast.CreatedAt = DateTime.UtcNow;
 
             work.Cast.Add(cast);

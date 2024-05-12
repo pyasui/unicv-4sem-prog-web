@@ -10,7 +10,7 @@ namespace Unicv.Streaming.Api.Controllers
     [Route("gender")]
     public class GenderController : ControllerBase
     {
-        private DataContext _db;
+        private readonly DataContext _db;
 
         public GenderController(IConfiguration configuration)
         {

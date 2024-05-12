@@ -9,7 +9,7 @@ namespace Unicv.Streaming.Api.Controllers
     [Route("category")]
     public class CategoryController : ControllerBase
     {
-        private DataContext _db;
+        private readonly DataContext _db;
 
         public CategoryController(IConfiguration configuration)
         {

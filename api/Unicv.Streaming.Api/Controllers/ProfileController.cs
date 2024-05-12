@@ -9,7 +9,7 @@ namespace Unicv.Streaming.Api.Controllers
     [ApiController]
     public class ProfileController : ControllerBase
     {
-        private DataContext _db;
+        private readonly DataContext _db;
 
         public ProfileController(IConfiguration configuration)
         {

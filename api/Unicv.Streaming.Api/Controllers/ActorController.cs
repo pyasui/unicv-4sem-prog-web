@@ -10,7 +10,7 @@ namespace Unicv.Streaming.Api.Controllers
     [Route("actor")]
     public class ActorController : ControllerBase
     {
-        private DataContext _db;
+        private readonly DataContext _db;
 
         public ActorController(IConfiguration configuration)
         {

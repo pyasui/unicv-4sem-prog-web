@@ -10,7 +10,7 @@ namespace Unicv.Streaming.Api.Controllers
     [ApiController]
     public class DirectorController : ControllerBase
     {
-        private DataContext _db;
+        private readonly DataContext _db;
 
         public DirectorController(IConfiguration configuration)
         {
