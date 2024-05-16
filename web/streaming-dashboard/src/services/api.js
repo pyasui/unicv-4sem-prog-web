@@ -3,9 +3,10 @@ import axios from 'axios';
 class APIService {
     constructor() {
         this.baseURL = 'https://api-streaming-unicv.azurewebsites.net/api';
+        // this.baseURL = 'https://localhost:port/api';
     }
 
-    async obterDados(route) {
+    async getData(route) {
         const url = `${this.baseURL}/${route}`;
         try {
             const response = await axios.get(url);
@@ -16,10 +17,32 @@ class APIService {
         }
     }
 
-    async enviarDados(route, dados) {
-        const url = `${this.baseURL}/${route}`; // Use a rota definida
+    async postData(route, data) {
+        const url = `${this.baseURL}/${route}`;
         try {
-            const response = await axios.post(url, dados);
+            const response = await axios.post(url, data);
+            return response.data;
+        } catch (error) {
+            console.error('Erro:', error);
+            throw error;
+        }
+    }
+
+    async putData(route, data) {
+        const url = `${this.baseURL}/${route}`;
+        try {
+            const response = await axios.put(url, data);
+            return response.data;
+        } catch (error) {
+            console.error('Erro:', error);
+            throw error;
+        }
+     }
+
+    async deleteData(route) { 
+        const url = `${this.baseURL}/${route}`;
+        try {
+            const response = await axios.delete(url);
             return response.data;
         } catch (error) {
             console.error('Erro:', error);

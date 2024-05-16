@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../../services/api";
 import { ApiRoutes } from "../../services/apiRoute";
 import APIService from "../../services/api";
-import { Button, Container, Table } from "react-bootstrap";
+import { Badge, Button, Container, Table } from "react-bootstrap";
 import Actor from "../../models/actor";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
 
@@ -39,13 +39,13 @@ const ActorList = () => {
 
     return (
         <Container>
-            <h1>Listagem de Atores</h1>
+            <h3>Listagem de Atores</h3>
 
             <Table striped bordered hover size="sm">
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Nome</th>
+                        <th>Nome ......</th>
                         <th style={{ width: "200px" }}>Ações</th>
                     </tr>
                 </thead>
@@ -55,12 +55,13 @@ const ActorList = () => {
                             <td className="text-right">{ator.id}</td>
                             <td>{ator.nome}</td>
                             <td className="text-center">
-                                <Button variant="primary" style={{ marginRight: '0.5rem' }} onClick={() => handleEditar(ator.id)}>
+                                <Badge bg="primary" pill onClick={() => handleEditar(ator.id)} >
                                     <MdEdit />
-                                </Button>
-                                <Button variant="outline-danger" className="ml-2" onClick={() => handleExcluir(ator.id)}>
+                                </Badge>
+                                &nbsp;|&nbsp;
+                                <Badge bg="danger" pill onClick={() => handleExcluir(ator.id)} >
                                     <MdDeleteOutline />
-                                </Button>
+                                </Badge>
                             </td>
                         </tr>
                     ))}
