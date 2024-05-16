@@ -1,12 +1,15 @@
 // Filename - pages/index.js
 
 import React from "react";
+import { Container } from "react-bootstrap";
 
 const HomePage = () => {
 	return (
-		<div>
-			<h1>Seja bem-vindo!</h1>
-		</div>
+		<Container>
+			<div>
+				<h1>Seja bem-vindo!</h1>
+			</div>
+		</Container>
 	);
 };
 
