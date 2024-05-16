@@ -3,11 +3,13 @@ import { useParams } from "react-router-dom";
  
 const ActorManage = () => {
     let { id } = useParams();
-    console.log('id', id);
+
+    let mensagem = id ? 'Editar': 'Novo';
+    console.log(id, mensagem);
 
     return (
         <div>
-            <h1>Criação/edição de atores</h1>
+            <h1>{ mensagem } Ator</h1>
         </div>
     );
 };
