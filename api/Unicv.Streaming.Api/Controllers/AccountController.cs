@@ -6,7 +6,7 @@ using Unicv.Streaming.Api.Models.Requests;
 namespace Unicv.Streaming.Api.Controllers;
 
 [ApiController]
-[Route("account")]
+[Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
     private readonly DataContext _db;

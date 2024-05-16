@@ -6,7 +6,7 @@ using Unicv.Streaming.Api.Models.Requests;
 namespace Unicv.Streaming.Api.Controllers;
 
 [ApiController]
-[Route("rating")]
+[Route("api/[controller]")]
 public class RatingController : ControllerBase
 {
     private readonly DataContext _db;
