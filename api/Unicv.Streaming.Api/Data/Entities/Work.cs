@@ -1,5 +1,8 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Unicv.Streaming.Api.Data.Entities;
 
+[Table("work")]
 public class Work
 {
     // propriedades nativas
