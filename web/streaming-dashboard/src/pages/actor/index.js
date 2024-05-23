@@ -5,61 +5,65 @@ import APIService from "../../services/api";
 import { Badge, Button, Container, Table } from "react-bootstrap";
 import Actor from "../../models/actor";
 import { MdDeleteOutline, MdEdit } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 const ActorList = () => {
-    const [atores, setAtores] = useState([]);
+    const [actors, setActors] = useState([]);
 
     useEffect(() => {
-        const carregarAtores = async () => {
-            try {
-                const apiService = new APIService();
-                const dados = [];//  await apiService.obterDados(ApiRoutes.actor);
+        loadData();
+    }, []);
 
-                const ator1 = new Actor(1, 'Brad Pitt');
-                const ator2 = new Actor(2, 'Angelina Jolie');
+    const loadData = async () => {
+        try {
+            const apiService = new APIService();
+            const data = await apiService.getData(ApiRoutes.actor);
 
-                dados.push(ator1);
-                dados.push(ator2);
-                setAtores(dados);
-            } catch (error) {
-                console.error('Erro ao carregar atores:', error);
-            }
-        };
-
-        carregarAtores();
-    }, []); // O array vazio como segundo argumento garante que o efeito só será executado uma vez, equivalente ao componentDidMount
-
-    const handleEditar = (id) => {
-        console.log('Editar ator com ID:', id);
+            setActors(data);
+        } catch (error) {
+            console.error('Erro ao carregar atores:', error);
+        }
     };
 
-    const handleExcluir = (id) => {
-        console.log('Excluir ator com ID:', id);
+    const deleteActorClick = async (id) => {
+        var confirm = window.confirm('Deseja excluir este registro?');
+        if (confirm) {
+            const apiService = new APIService();
+            await apiService.deleteData(`${ApiRoutes.actor}/${id}`);
+
+            loadData();
+        }
     };
 
     return (
         <Container>
-            <h3>Listagem de Atores</h3>
-
+            <div className="d-flex justify-content-between align-items-center mt-4 mb-4">
+                <h3>Listagem de atores</h3>
+                <Link to={`/atores/gerenciar/`}>
+                    <Button color="primary">Novo</Button>
+                </Link>
+            </div>
             <Table striped bordered hover size="sm">
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Nome ......</th>
+                        <th>Nome</th>
                         <th style={{ width: "200px" }}>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {atores.map((ator) => (
+                    {actors.map((ator) => (
                         <tr key={ator.id}>
                             <td className="text-right">{ator.id}</td>
-                            <td>{ator.nome}</td>
+                            <td>{ator.name}</td>
                             <td className="text-center">
-                                <Badge bg="primary" pill onClick={() => handleEditar(ator.id)} >
-                                    <MdEdit />
-                                </Badge>
+                                <Link to={`/atores/gerenciar/${ator.id}`}>
+                                    <Badge bg="primary" pill>
+                                        <MdEdit />
+                                    </Badge>
+                                </Link>
                                 &nbsp;|&nbsp;
-                                <Badge bg="danger" pill onClick={() => handleExcluir(ator.id)} >
+                                <Badge bg="danger" pill onClick={() => deleteActorClick(ator.id)} >
                                     <MdDeleteOutline />
                                 </Badge>
                             </td>

@@ -1,7 +1,8 @@
 class Actor  {
-    constructor(id, nome) {
+    constructor(id, name, profile) {
       this.id = id;
-      this.nome = nome;
+      this.name = name;
+      this.profile = profile;
     }
   }
   

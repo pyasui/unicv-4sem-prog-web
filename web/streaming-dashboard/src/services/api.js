@@ -3,7 +3,6 @@ import axios from 'axios';
 class APIService {
     constructor() {
         this.baseURL = 'https://api-streaming-unicv.azurewebsites.net/api';
-        // this.baseURL = 'https://localhost:port/api';
     }
 
     async getData(route) {
