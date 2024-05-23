@@ -1,5 +1,8 @@
-﻿namespace Unicv.Streaming.Api.Data.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
+namespace Unicv.Streaming.Api.Data.Entities;
+
+[Table("actor")]
 public class Actor
 {
     public int Id { get; set; }
@@ -9,6 +12,4 @@ public class Actor
     public string Profile { get; set; }
     
     public DateTime CreatedAt { get; set; }
-
-    public DateTime? BirthDate { get; set; }
 }

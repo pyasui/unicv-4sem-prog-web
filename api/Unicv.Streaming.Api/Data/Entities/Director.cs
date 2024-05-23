@@ -1,5 +1,8 @@
-﻿namespace Unicv.Streaming.Api.Data.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
+namespace Unicv.Streaming.Api.Data.Entities;
+
+[Table("director")]
 public class Director
 {
     public int Id { get; set; }

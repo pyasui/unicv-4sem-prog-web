@@ -72,7 +72,6 @@ public class ActorController : ControllerBase
         var actor = new Actor();
         actor.Name = model.Name;
         actor.Profile = model.Profile;
-        actor.BirthDate = model.BirthDate;
         actor.CreatedAt = DateTime.UtcNow;
 
         _db.Add(actor);
@@ -106,7 +105,6 @@ public class ActorController : ControllerBase
 
         author.Name = model.Name;
         author.Profile = model.Profile;
-        author.BirthDate = model.BirthDate;
 
         _db.Update(author);
         _db.SaveChanges();
