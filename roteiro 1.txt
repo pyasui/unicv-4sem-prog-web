@@ -1,0 +1,14 @@
+-- criar a aplicação
+npx create-react-app bootstrap-app
+
+-- instalar o bootstrap
+npm install react-bootstrap bootstrap
+
+-- iniciar a aplicação
+npm start
+
+-- alterar o arquivo src/index.js
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+-- ícones
+npm install @fortawesome/react-fontawesome @fortawesome/free-solid-svg-icons
