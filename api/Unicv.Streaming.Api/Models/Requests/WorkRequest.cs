@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Unicv.Streaming.Api.Models.Requests;
 
@@ -24,4 +25,9 @@ public class WorkRequest
     public int DirectorId { get; set; }
 
     public int[] Actors { get; set; }
+
+    public WorkRequest()
+    {
+        Actors = new int[] { };
+    }
 }

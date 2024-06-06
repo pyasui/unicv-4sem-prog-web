@@ -71,7 +71,6 @@ public class DirectorController : ControllerBase
         var director = new Director();
         director.Name = model.Name;
         director.Profile = model.Profile;
-        director.BirthDate = model.BirthDate;
         director.CreatedAt = DateTime.UtcNow;
 
         _db.Add(director);
@@ -105,7 +104,6 @@ public class DirectorController : ControllerBase
 
         director.Name = model.Name;
         director.Profile = model.Profile;
-        director.BirthDate = model.BirthDate;
 
         _db.Update(director);
         _db.SaveChanges();

@@ -12,6 +12,4 @@ public class Director
     public string Profile { get; set; }
 
     public DateTime CreatedAt { get; set; }
-
-    public DateTime? BirthDate { get; set; }
 }

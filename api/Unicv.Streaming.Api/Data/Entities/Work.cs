@@ -20,6 +20,10 @@ public class Work
     public List<Cast> Cast { get; set; }
     public List<Rating> Rating { get; set; }
 
+    public Category Category { get; set; }
+    public Gender Gender { get; set; }
+    public Director Director { get; set; }
+
     public Work()
     {
         Cast = new List<Cast>();
