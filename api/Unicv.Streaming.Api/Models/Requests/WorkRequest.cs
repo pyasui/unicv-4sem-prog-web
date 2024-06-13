@@ -24,10 +24,10 @@ public class WorkRequest
     [Required]
     public int DirectorId { get; set; }
 
-    public int[] Actors { get; set; }
+    //public int[] Actors { get; set; }
 
     public WorkRequest()
     {
-        Actors = new int[] { };
+        //Actors = new int[] { };
     }
 }

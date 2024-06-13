@@ -128,6 +128,10 @@ public class DirectorController : ControllerBase
         if (director == null)
             return NotFound();
 
+        var exists = _db.Work.Any(x => x.DirectorId == id);
+        if (exists)
+            return BadRequest("Este diretor está relacionado a alguma obra.");
+
         _db.Remove(director);
         _db.SaveChanges();
 

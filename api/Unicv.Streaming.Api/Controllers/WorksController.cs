@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Unicv.Streaming.Api.Data.Context;
 using Unicv.Streaming.Api.Data.Entities;
 using Unicv.Streaming.Api.Models.Requests;
@@ -46,8 +47,29 @@ public class WorksController : ControllerBase
     [HttpGet]
     public IActionResult Get()
     {
-        var works = _db.Work.Where(x => x.Active).ToList();
-        return Ok(works);
+        var works = _db.Work
+            .Include(x => x.Gender)
+            .Include(x => x.Category)
+            .Include(x => x.Director)
+            .OrderBy(x => x.Id)
+            .ToList();
+
+        var list = works.Select(x => new
+        {
+            x.Id,
+            x.Title,
+            x.Synopsis,
+            x.Active,
+            x.CreatedAt,
+            x.GenderId,
+            x.CategoryId,
+            x.DirectorId,
+            Gender = x.Gender.Name,
+            Category = x.Category.Name,
+            Director = x.Director.Name
+        }).ToList();
+
+        return Ok(list);
     }
     #endregion
 
@@ -67,8 +89,8 @@ public class WorksController : ControllerBase
     {
         // o nome não pode ser duplicado na plataforma
         var entity = _db.Work.FirstOrDefault(x => x.Title == model.Title);
-        if (entity != null)
-            return BadRequest("Já existe uma obra com este título cadastrado.");
+        //if (entity != null)
+        //    return BadRequest("Já existe uma obra com este título cadastrado.");
 
         var gender = _db.Gender.FirstOrDefault(x => x.Id == model.GenderId);
         if (gender == null)
@@ -82,15 +104,15 @@ public class WorksController : ControllerBase
         if (director == null)
             return BadRequest("O diretor informado é inválido");
 
-        if (model.Actors != null)
-        {
-            foreach (var actorId in model.Actors)
-            {
-                var existsActor = _db.Actor.Any(x => x.Id == actorId);
-                if (!existsActor)
-                    return BadRequest($"O ator informado é inválido (Id: {actorId})");
-            }
-        }
+        //if (model.Actors != null)
+        //{
+        //    foreach (var actorId in model.Actors)
+        //    {
+        //        var existsActor = _db.Actor.Any(x => x.Id == actorId);
+        //        if (!existsActor)
+        //            return BadRequest($"O ator informado é inválido (Id: {actorId})");
+        //    }
+        //}
 
         var work = new Work();
         work.Title = model.Title;
@@ -103,17 +125,17 @@ public class WorksController : ControllerBase
         work.CreatedAt = DateTime.UtcNow;
 
         // adicionar os ators
-        foreach (var actorId in model.Actors)
-        {
-            var cast = new Cast();
-            cast.ActorId = actorId;
-            cast.CreatedAt = DateTime.UtcNow;
+        //foreach (var actorId in model.Actors)
+        //{
+        //    var cast = new Cast();
+        //    cast.ActorId = actorId;
+        //    cast.CreatedAt = DateTime.UtcNow;
 
-            work.Cast.Add(cast);
-        }
+        //    work.Cast.Add(cast);
+        //}
 
         _db.Add(work);
-        _db.SaveChanges();
+        var rows = _db.SaveChanges();
 
         return Ok();
     }
@@ -131,7 +153,7 @@ public class WorksController : ControllerBase
     /// <response code="400">O diretor informado é inválido</response>
     /// <response code="404">A obra não existe</response>
     /// <response code="422">Dados inválidos</response>
-    [HttpPut]
+    [HttpPut("{id}")]
     public IActionResult Put(int id, WorkRequest model)
     {
         var exists = _db.Work.Any(x => x.Id == id);
@@ -139,9 +161,9 @@ public class WorksController : ControllerBase
             return NotFound();
 
         // o nome não pode ser duplicado na plataforma
-        var entity = _db.Work.FirstOrDefault(x => x.Title == model.Title);
-        if (entity != null)
-            return BadRequest("Já existe uma obra com este título cadastrado.");
+        var entity = _db.Work.FirstOrDefault(x => x.Id == id);
+        //if (entity != null)
+        //    return BadRequest("Já existe uma obra com este título cadastrado.");
 
         var gender = _db.Gender.FirstOrDefault(x => x.Id == model.GenderId);
         if (gender == null)
@@ -165,6 +187,29 @@ public class WorksController : ControllerBase
         entity.CreatedAt = DateTime.UtcNow;
 
         _db.Update(entity);
+        _db.SaveChanges();
+
+        return Ok();
+    }
+    #endregion
+
+    #region Delete
+    /// <summary>
+    /// Excluir uma obra
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="200">Obra excluída com sucesso</response>
+    ///// <response code="400">Esta categoria está relacionada com outras tabelas</response>
+    /// <response code="404">Obra não encontrada</response>
+    [HttpDelete("{id}")]
+    public IActionResult Delete(int id)
+    {
+        var work = _db.Work.FirstOrDefault(x => x.Id == id);
+
+        if (work == null)
+            return NotFound();
+
+        _db.Remove(work);
         _db.SaveChanges();
 
         return Ok();

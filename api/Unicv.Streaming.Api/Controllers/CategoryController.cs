@@ -125,6 +125,10 @@ public class CategoryController : ControllerBase
         if (category == null)
             return NotFound();
 
+        var exists = _db.Work.Any(x => x.CategoryId == id);
+        if (exists)
+            return BadRequest("Esta categoria está relacionada a alguma obra.");
+
         _db.Remove(category);
         _db.SaveChanges();
 

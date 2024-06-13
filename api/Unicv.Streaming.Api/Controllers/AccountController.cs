@@ -118,6 +118,7 @@ public class AccountController : ControllerBase
         account.Name = model.Name;
         account.Email = model.Email;
         account.BirthDate = model.BirthDate;
+        account.Password = model.Password;
 
         _db.Update(account);
         _db.SaveChanges();

@@ -46,6 +46,13 @@ public class ProfileController : ControllerBase
     [HttpGet]
     public IActionResult Get(int accountId)
     {
+        if (accountId == 0)
+            return BadRequest("Informe uma conta válida");
+
+        var exists = _db.Account.Any(x => x.Id == accountId);
+        if (!exists)
+            return NotFound("A conta informada é inválida.");
+
         var profiles = _db.Profile.Where(x => x.AccountId == accountId).ToList();
         return Ok(profiles);
     }

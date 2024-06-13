@@ -125,6 +125,10 @@ public class GenderController : ControllerBase
         if (gender == null)
             return NotFound();
 
+        var exists = _db.Work.Any(x => x.GenderId == id);
+        if (exists)
+            return BadRequest("Este gênero está relacionado a alguma obra.");
+
         _db.Remove(gender);
         _db.SaveChanges();
 
