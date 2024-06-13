@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Unicv.Streaming.Api.Data.Context;
+using Unicv.Streaming.Api.Data.Entities;
+using Unicv.Streaming.Api.Models.Requests;
 
 namespace Unicv.Streaming.Api.Controllers;
 
@@ -37,7 +39,7 @@ public class RatingController : ControllerBase
         var ddlProfile = profiles.Select(x => new
         {
             Id = x.Id,
-            Title = string.Format("{0} - {1} (Perfil infantil: {2})", x.Account.Name, x.Name, x.IsChildrenProfile ? "Sim": "Não")
+            Title = string.Format("{0} - {1} (Perfil infantil: {2})", x.Account.Name, x.Name, x.IsChildrenProfile ? "Sim" : "Não")
         })
         .OrderBy(x => x.Title)
         .ToList();
@@ -58,82 +60,115 @@ public class RatingController : ControllerBase
     }
     #endregion
 
-    //#region GetRatingByWork
-    ///// <summary>
-    ///// Retorna avaliação de uma obra específica
-    ///// </summary>
-    ///// <returns></returns>
-    ///// <response code="200">Avaliação média da obra</response>
-    ///// <response code="404">Obra não encontrada</response>
-    //[HttpGet]
-    //public IActionResult GetRatingByWork(int workId)
-    //{
-    //    var work = _db.Work.FirstOrDefault(x => x.Id == workId);
+    #region CreateRating
+    /// <summary>
+    /// Criar uma Avaliação
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="200">Avalaição criada com sucesso</response>
+    /// <response code="404">A obra relacionada não existe</response>
+    /// <response code="404">O perfil relacionado não existe</response>
+    /// <response code="400">A avaliação deve ser entre 1 e 5</response>
+    [HttpPost]
+    public IActionResult Post(RatingRequest request)
+    {
+        var existsWork = _db.Work.Any(x => x.Id == request.WorkId);
+        if (!existsWork)
+            return NotFound("Obra não encontrada");
 
-    //    if (work == null) 
-    //        return NotFound();
+        var existsProfile = _db.Profile.Any(x => x.Id == request.ProfileId);
+        if (!existsProfile)
+            return NotFound("Perfil não encontrado");
 
-    //    var ratings = _db.Rating.Where(x => x.WorkId == workId).ToList();
-    //    var rating = (decimal)0;
+        var isValidRating = request.UserRating >= 1 && request.UserRating <= 5;
+        if (!isValidRating)
+            return BadRequest("A avaliação deve ser entre 1 e 5");
 
-    //    if (ratings.Count>0)
-    //    {
-    //        var sum = ratings.Sum(x => x.UserRating);
-    //        rating = sum / ratings.Count;
-    //    }
+        var rating = _db.Rating.FirstOrDefault(x => x.WorkId == request.WorkId && x.ProfileId == request.ProfileId);
+        if (rating == null)
+        {
+            rating = new Rating();
+            rating.CreatedAt = DateTime.UtcNow;
+            rating.WorkId = request.WorkId;
+            rating.ProfileId = request.ProfileId;
+        }
 
-    //    return Ok(rating);
-    //}
-    //#endregion
+        rating.UserRating = request.UserRating;
 
-    //#region Post
-    ///// <summary>
-    ///// Criar uma Avaliação
-    ///// </summary>
-    ///// <returns></returns>
-    ///// <response code="200">Avalaição criada com sucesso</response>
-    ///// <response code="400">A obra relacionada não existe</response>
-    ///// <response code="400">O perfil relacionado não existe</response>
-    ///// <response code="400">A avaliação deve ser entre 1 e 5</response>
-    ///// <response code="422">Dados inválidos</response>
-    //[HttpPost]
-    //public IActionResult Post(RatingRequest model)
-    //{
-    //    // o nome não pode ser duplicado na plataforma
-    //    var existsWork = _db.Work.Any(x => x.Id == model.WorkId);
-    //    if (!existsWork)
-    //        return BadRequest("A obra relacionada não existe.");
+        if (rating.Id == 0)
+            _db.Add(rating);
+        else
+            _db.Update(rating);
+        _db.SaveChanges();
 
-    //    var existsProfile = _db.Profile.Any(x => x.Id == model.ProfileId);
-    //    if (!existsProfile)
-    //        return BadRequest("O perfil relacionado não existe.");
+        return Ok();
+    }
+    #endregion
 
-    //    var isValidRating = model.UserRating >= 1 && model.UserRating <= 5;
-    //    if (!isValidRating)
-    //        return BadRequest("A avaliação deve ser entre 1 e 5");
+    #region GetRatingByWork
+    /// <summary>
+    /// Retorna avaliação de uma obra específica
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="200">Avaliação média da obra</response>
+    /// <response code="404">Obra não encontrada</response>
+    [HttpGet]
+    public IActionResult GetRatingByWork(int workId)
+    {
+        var work = _db.Work.FirstOrDefault(x => x.Id == workId);
 
-    //    // caso já exista a avalaiação, apenas atualiza
-    //    var rating = _db.Rating.FirstOrDefault(x => x.WorkId == model.WorkId && x.ProfileId == model.ProfileId);
+        if (work == null)
+            return NotFound();
 
-    //    if (rating == null)
-    //    {
-    //        rating = new Rating();
-    //        rating.WorkId= model.WorkId;
-    //        rating.ProfileId= model.ProfileId;
-    //        rating.UserRating = model.UserRating;
-    //        rating.CreatedAt = DateTime.UtcNow;
+        var ratings = _db.Rating
+            .Include(x => x.Profile)
+            .ThenInclude(x => x.Account)
+            .Where(x => x.WorkId == workId)
+            .ToList();
 
-    //        _db.Add(rating);
-    //    }
-    //    else
-    //    {
-    //        rating.UserRating = model.UserRating;
+        var listProfiles = ratings.Select(x => new
+        {
+            Id = x.Id,
+            Profile = string.Format("{0} - {1} (Perfil infantil: {2})", x.Profile.Account.Name, x.Profile.Name, x.Profile.IsChildrenProfile ? "Sim" : "Não"),
+            Rating = x.UserRating
+        })
+        .ToList();
 
-    //        _db.Update(rating);
-    //    }
+        var rating = (decimal)0;
 
-    //    _db.SaveChanges();
-    //    return Ok();
-    //}
-    //#endregion
+        if (ratings.Count > 0)
+        {
+            var sum = (decimal)ratings.Sum(x => x.UserRating);
+            rating = sum / ratings.Count;
+        }
+
+        return Ok(new
+        {
+            Rating = rating,
+            Profiles = listProfiles
+        });
+    }
+    #endregion
+
+    #region Delete
+    /// <summary>
+    /// Excluir uma avaliação
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="200">Avaliação excluída com sucesso</response>
+    /// <response code="404">Avaliação não encontrada</response>
+    [HttpDelete("{id}")]
+    public IActionResult Delete(int id)
+    {
+        var rating = _db.Rating.FirstOrDefault(x => x.Id == id);
+
+        if (rating == null)
+            return NotFound();
+
+        _db.Remove(rating);
+        _db.SaveChanges();
+
+        return Ok();
+    }
+    #endregion
 }
