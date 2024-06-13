@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Unicv.Streaming.Api.Data.Context;
-using Unicv.Streaming.Api.Data.Entities;
-using Unicv.Streaming.Api.Models.Requests;
 
 namespace Unicv.Streaming.Api.Controllers;
 
@@ -16,82 +15,125 @@ public class RatingController : ControllerBase
         _db = new DataContext(configuration);
     }
 
-    #region GetRatingByWork
-    /// <summary>
-    /// Retorna avaliação de uma obra específica
-    /// </summary>
-    /// <returns></returns>
-    /// <response code="200">Avaliação média da obra</response>
-    /// <response code="404">Obra não encontrada</response>
+    #region GetData
+    ///// <summary>
+    ///// Retorna os dados para carregar a tela de avaliações
+    ///// </summary>
+    ///// <returns></returns>
+    ///// <response code="200">Dados da tela</response>
     [HttpGet]
-    public IActionResult GetRatingByWork(int workId)
+    [Route("get-data")]
+    public IActionResult GetData()
     {
-        var work = _db.Work.FirstOrDefault(x => x.Id == workId);
+        var profiles = _db.Profile
+            .Include(x => x.Account)
+            .ToList();
 
-        if (work == null) 
-            return NotFound();
+        var works = _db.Work
+            .Include(x => x.Gender)
+            .Include(x => x.Category)
+            .ToList();
 
-        var ratings = _db.Rating.Where(x => x.WorkId == workId).ToList();
-        var rating = (decimal)0;
-
-        if (ratings.Count>0)
+        var ddlProfile = profiles.Select(x => new
         {
-            var sum = ratings.Sum(x => x.UserRating);
-            rating = sum / ratings.Count;
-        }
+            Id = x.Id,
+            Title = string.Format("{0} - {1} (Perfil infantil: {2})", x.Account.Name, x.Name, x.IsChildrenProfile ? "Sim": "Não")
+        })
+        .OrderBy(x => x.Title)
+        .ToList();
 
-        return Ok(rating);
+        var ddlWork = works.Select(x => new
+        {
+            x.Id,
+            Title = string.Format("{0} - Cat: {1} - Gen: {2}", x.Title, x.Category.Name, x.Gender.Name)
+        })
+        .OrderBy(x => x.Title)
+        .ToList();
+
+        return Ok(new
+        {
+            Profiles = ddlProfile,
+            Works = ddlWork
+        });
     }
     #endregion
 
-    #region Post
-    /// <summary>
-    /// Criar uma Avaliação
-    /// </summary>
-    /// <returns></returns>
-    /// <response code="200">Avalaição criada com sucesso</response>
-    /// <response code="400">A obra relacionada não existe</response>
-    /// <response code="400">O perfil relacionado não existe</response>
-    /// <response code="400">A avaliação deve ser entre 1 e 5</response>
-    /// <response code="422">Dados inválidos</response>
-    [HttpPost]
-    public IActionResult Post(RatingRequest model)
-    {
-        // o nome não pode ser duplicado na plataforma
-        var existsWork = _db.Work.Any(x => x.Id == model.WorkId);
-        if (!existsWork)
-            return BadRequest("A obra relacionada não existe.");
+    //#region GetRatingByWork
+    ///// <summary>
+    ///// Retorna avaliação de uma obra específica
+    ///// </summary>
+    ///// <returns></returns>
+    ///// <response code="200">Avaliação média da obra</response>
+    ///// <response code="404">Obra não encontrada</response>
+    //[HttpGet]
+    //public IActionResult GetRatingByWork(int workId)
+    //{
+    //    var work = _db.Work.FirstOrDefault(x => x.Id == workId);
 
-        var existsProfile = _db.Profile.Any(x => x.Id == model.ProfileId);
-        if (!existsProfile)
-            return BadRequest("O perfil relacionado não existe.");
+    //    if (work == null) 
+    //        return NotFound();
 
-        var isValidRating = model.UserRating >= 1 && model.UserRating <= 5;
-        if (!isValidRating)
-            return BadRequest("A avaliação deve ser entre 1 e 5");
+    //    var ratings = _db.Rating.Where(x => x.WorkId == workId).ToList();
+    //    var rating = (decimal)0;
 
-        // caso já exista a avalaiação, apenas atualiza
-        var rating = _db.Rating.FirstOrDefault(x => x.WorkId == model.WorkId && x.ProfileId == model.ProfileId);
+    //    if (ratings.Count>0)
+    //    {
+    //        var sum = ratings.Sum(x => x.UserRating);
+    //        rating = sum / ratings.Count;
+    //    }
 
-        if (rating == null)
-        {
-            rating = new Rating();
-            rating.WorkId= model.WorkId;
-            rating.ProfileId= model.ProfileId;
-            rating.UserRating = model.UserRating;
-            rating.CreatedAt = DateTime.UtcNow;
+    //    return Ok(rating);
+    //}
+    //#endregion
 
-            _db.Add(rating);
-        }
-        else
-        {
-            rating.UserRating = model.UserRating;
+    //#region Post
+    ///// <summary>
+    ///// Criar uma Avaliação
+    ///// </summary>
+    ///// <returns></returns>
+    ///// <response code="200">Avalaição criada com sucesso</response>
+    ///// <response code="400">A obra relacionada não existe</response>
+    ///// <response code="400">O perfil relacionado não existe</response>
+    ///// <response code="400">A avaliação deve ser entre 1 e 5</response>
+    ///// <response code="422">Dados inválidos</response>
+    //[HttpPost]
+    //public IActionResult Post(RatingRequest model)
+    //{
+    //    // o nome não pode ser duplicado na plataforma
+    //    var existsWork = _db.Work.Any(x => x.Id == model.WorkId);
+    //    if (!existsWork)
+    //        return BadRequest("A obra relacionada não existe.");
 
-            _db.Update(rating);
-        }
+    //    var existsProfile = _db.Profile.Any(x => x.Id == model.ProfileId);
+    //    if (!existsProfile)
+    //        return BadRequest("O perfil relacionado não existe.");
 
-        _db.SaveChanges();
-        return Ok();
-    }
-    #endregion
+    //    var isValidRating = model.UserRating >= 1 && model.UserRating <= 5;
+    //    if (!isValidRating)
+    //        return BadRequest("A avaliação deve ser entre 1 e 5");
+
+    //    // caso já exista a avalaiação, apenas atualiza
+    //    var rating = _db.Rating.FirstOrDefault(x => x.WorkId == model.WorkId && x.ProfileId == model.ProfileId);
+
+    //    if (rating == null)
+    //    {
+    //        rating = new Rating();
+    //        rating.WorkId= model.WorkId;
+    //        rating.ProfileId= model.ProfileId;
+    //        rating.UserRating = model.UserRating;
+    //        rating.CreatedAt = DateTime.UtcNow;
+
+    //        _db.Add(rating);
+    //    }
+    //    else
+    //    {
+    //        rating.UserRating = model.UserRating;
+
+    //        _db.Update(rating);
+    //    }
+
+    //    _db.SaveChanges();
+    //    return Ok();
+    //}
+    //#endregion
 }

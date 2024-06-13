@@ -11,4 +11,6 @@ public class Account
     public string Password { get; set; }
     public DateTime BirthDate { get; set; }
     public DateTime CreatedAt { get; set; }
+
+    public List<Profile> Profile { get; set; }
 }
