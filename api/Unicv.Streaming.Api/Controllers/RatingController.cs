@@ -2,7 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using Unicv.Streaming.Api.Data.Context;
 using Unicv.Streaming.Api.Data.Entities;
+using Unicv.Streaming.Api.Infra.Extensions;
 using Unicv.Streaming.Api.Models.Requests;
+using Unicv.Streaming.Api.Models.Response;
 
 namespace Unicv.Streaming.Api.Controllers;
 
@@ -17,50 +19,104 @@ public class RatingController : ControllerBase
         _db = new DataContext(configuration);
     }
 
-    #region GetData
-    ///// <summary>
-    ///// Retorna os dados para carregar a tela de avaliações
-    ///// </summary>
-    ///// <returns></returns>
-    ///// <response code="200">Dados da tela</response>
+    #region Get
+    /// <summary>
+    /// Retorna todas as avaliações
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="200">Retorna a lista de gêneros</response>
     [HttpGet]
-    [Route("get-data")]
-    public IActionResult GetData()
+    public IActionResult Get()
     {
-        var profiles = _db.Profile
-            .Include(x => x.Account)
-            .ToList();
-
         var works = _db.Work
-            .Include(x => x.Gender)
-            .Include(x => x.Category)
+            .Include(x => x.Rating)
+            .Where(x => x.Rating.Count > 0)
+            .OrderBy(x => x.Title)
             .ToList();
 
-        var ddlProfile = profiles.Select(x => new
+        var ratings = works.Select(x => new RatingResponse
         {
-            Id = x.Id,
-            Title = string.Format("{0} - {1} (Perfil infantil: {2})", x.Account.Name, x.Name, x.IsChildrenProfile ? "Sim" : "Não")
+            WorkId = x.Id,
+            Title = x.Title,
+            QtyRatings = x.Rating.Where(y => y.WorkId == x.Id).Count(),
+            Average = x.GetAverage(x.Rating)
         })
-        .OrderBy(x => x.Title)
         .ToList();
 
-        var ddlWork = works.Select(x => new
+        return Ok(ratings);
+    }
+    #endregion
+
+    #region GetRatingByWork
+    /// <summary>
+    /// Retorna avaliação de uma obra específica
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="200">Dados da avaliação por obra</response>
+    /// <response code="404">Obra não encontrada</response>
+    [HttpGet("{workId}")]
+    public IActionResult GetRatingByWork(int workId)
+    {
+        var exists = _db.Work.Any(x => x.Id == workId);
+
+        if (!exists)
+            return NotFound();
+
+        var work = _db.Work
+            .Include(x => x.Category)
+            .Include(x => x.Director)
+            .Include(x => x.Gender)
+            .FirstOrDefault(x => x.Id == workId);
+
+        var ratings = _db.Rating
+            .Include(x => x.Profile)
+            .ThenInclude(x => x.Account)
+            .Where(x => x.WorkId == workId)
+            .ToList();
+
+        var listProfiles = ratings.Select(x => new
         {
-            x.Id,
-            Title = string.Format("{0} - Cat: {1} - Gen: {2}", x.Title, x.Category.Name, x.Gender.Name)
+            RatingId = x.Id,
+            Profile = string.Format("{0} - {1})", x.Profile.Account.Name, x.Profile.Name),
+            Rating = x.UserRating
         })
-        .OrderBy(x => x.Title)
         .ToList();
 
         return Ok(new
         {
-            Profiles = ddlProfile,
-            Works = ddlWork
+            Rating = work.GetAverage(ratings),
+            Category = work.Category.Name,
+            Director = work.Director.Name,
+            Gender = work.Gender.Name,
+            work.Title,
+            Profiles = listProfiles
         });
     }
     #endregion
 
-    #region CreateRating
+    #region ClearRating
+    /// <summary>
+    /// Limpar a avaliações de uma obra
+    /// </summary>
+    /// <returns></returns>
+    /// <response code="200">Avaliações excluídas com sucesso</response>
+    [HttpDelete("{workId}/clear")]
+    public IActionResult Delete(int workId)
+    {
+        var ratings = _db.Rating.Where(x => x.WorkId == workId);
+
+        if (ratings.Any())
+        {
+            foreach (var rating in ratings)
+                _db.Remove(rating);
+
+            _db.SaveChanges();
+        }
+        return Ok();
+    }
+    #endregion
+
+    #region Post
     /// <summary>
     /// Criar uma Avaliação
     /// </summary>
@@ -105,51 +161,6 @@ public class RatingController : ControllerBase
     }
     #endregion
 
-    #region GetRatingByWork
-    /// <summary>
-    /// Retorna avaliação de uma obra específica
-    /// </summary>
-    /// <returns></returns>
-    /// <response code="200">Avaliação média da obra</response>
-    /// <response code="404">Obra não encontrada</response>
-    [HttpGet]
-    public IActionResult GetRatingByWork(int workId)
-    {
-        var work = _db.Work.FirstOrDefault(x => x.Id == workId);
-
-        if (work == null)
-            return NotFound();
-
-        var ratings = _db.Rating
-            .Include(x => x.Profile)
-            .ThenInclude(x => x.Account)
-            .Where(x => x.WorkId == workId)
-            .ToList();
-
-        var listProfiles = ratings.Select(x => new
-        {
-            Id = x.Id,
-            Profile = string.Format("{0} - {1} (Perfil infantil: {2})", x.Profile.Account.Name, x.Profile.Name, x.Profile.IsChildrenProfile ? "Sim" : "Não"),
-            Rating = x.UserRating
-        })
-        .ToList();
-
-        var rating = (decimal)0;
-
-        if (ratings.Count > 0)
-        {
-            var sum = (decimal)ratings.Sum(x => x.UserRating);
-            rating = sum / ratings.Count;
-        }
-
-        return Ok(new
-        {
-            Rating = rating,
-            Profiles = listProfiles
-        });
-    }
-    #endregion
-
     #region Delete
     /// <summary>
     /// Excluir uma avaliação
@@ -157,10 +168,10 @@ public class RatingController : ControllerBase
     /// <returns></returns>
     /// <response code="200">Avaliação excluída com sucesso</response>
     /// <response code="404">Avaliação não encontrada</response>
-    [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    [HttpDelete("{ratingId}/delete-recommendation")]
+    public IActionResult DeleteRecommendaton(int ratingId)
     {
-        var rating = _db.Rating.FirstOrDefault(x => x.Id == id);
+        var rating = _db.Rating.FirstOrDefault(x => x.Id == ratingId);
 
         if (rating == null)
             return NotFound();

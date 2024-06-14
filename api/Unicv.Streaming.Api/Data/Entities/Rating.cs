@@ -12,4 +12,5 @@ public class Rating
     public DateTime CreatedAt { get; set; }
 
     public Profile Profile { get; set; }
+    public Work Work { get; set; }
 }

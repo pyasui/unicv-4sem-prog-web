@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Xml;
 using Unicv.Streaming.Api.Data.Context;
 using Unicv.Streaming.Api.Data.Entities;
 using Unicv.Streaming.Api.Models.Requests;
@@ -39,22 +41,30 @@ public class ProfileController : ControllerBase
 
     #region Get
     /// <summary>
-    /// Retorna todas os perfis por usuário
+    /// Retorna todos os perfis cadastrados na plataforma
     /// </summary>
     /// <returns></returns>
     /// <response code="200">Retorna a lista de perfis</response>
     [HttpGet]
-    public IActionResult Get(int accountId)
+    public IActionResult Get()
     {
-        if (accountId == 0)
-            return BadRequest("Informe uma conta válida");
+        var profiles = _db.Profile
+            .Include(x => x.Account)
+            .ToList();
 
-        var exists = _db.Account.Any(x => x.Id == accountId);
-        if (!exists)
-            return NotFound("A conta informada é inválida.");
+        var list = profiles.Select(x => new
+        {
+            x.Id,
+            x.Name,
+            x.IsChildrenProfile,
+            x.AccountId,
+            AccountName = x.Account.Name,
+            x.CreatedAt
+        })
+        .OrderBy(x => x.AccountName)
+        .ToList();
 
-        var profiles = _db.Profile.Where(x => x.AccountId == accountId).ToList();
-        return Ok(profiles);
+        return Ok(list);
     }
     #endregion
 
